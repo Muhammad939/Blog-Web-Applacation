@@ -1,0 +1,20 @@
+{
+  "name": "capstone-blog",
+  "version": "1.0.0",
+  "description": "This Is A Capstone Npm",
+  "main": "index.js",
+
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "Sulaiman B",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2"
+  }
+}

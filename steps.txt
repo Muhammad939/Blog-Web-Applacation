@@ -1,0 +1,168 @@
+app.js: This is the main file where the Express.js application is configured.
+javascript
+Copy code
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+
+// Middleware to parse request bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Array to store blog posts (in-memory database)
+let posts = [];
+
+// Home route - display all posts
+app.get('/', (req, res) => {
+    res.render('index', { posts: posts });
+});
+
+// Route to display form for creating a new post
+app.get('/new', (req, res) => {
+    res.render('new');
+});
+
+// Route to handle form submission for creating a new post
+app.post('/new', (req, res) => {
+    const { title, content } = req.body;
+    posts.push({ title: title, content: content });
+    res.redirect('/');
+});
+
+// Route to display form for editing a post
+app.get('/edit/:id', (req, res) => {
+    const id = req.params.id;
+    const post = posts[id];
+    res.render('edit', { id: id, post: post });
+});
+
+// Route to handle form submission for editing a post
+app.post('/edit/:id', (req, res) => {
+    const id = req.params.id;
+    const { title, content } = req.body;
+    posts[id] = { title: title, content: content };
+    res.redirect('/');
+});
+
+// Route to delete a post
+app.post('/delete/:id', (req, res) => {
+    const id = req.params.id;
+    posts.splice(id, 1);
+    res.redirect('/');
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+views/index.ejs: This is the EJS template for displaying all posts.
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Welcome to the Blog</h1>
+    <ul>
+        <% posts.forEach((post, index) => { %>
+            <li>
+                <h2><%= post.title %></h2>
+                <p><%= post.content %></p>
+                <form action="/delete/<%= index %>" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+                <a href="/edit/<%= index %>">Edit</a>
+            </li>
+        <% }); %>
+    </ul>
+    <a href="/new">Create New Post</a>
+</body>
+</html>
+views/new.ejs: This is the EJS template for creating a new post.
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Post</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Create New Post</h1>
+    <form action="/new" method="POST">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content"></textarea><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
+views/edit.ejs: This is the EJS template for editing an existing post.
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Edit Post</h1>
+    <form action="/edit/<%= id %>" method="POST">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" value="<%= post.title %>"><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content"><%= post.content %></textarea><br>
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>
+public/styles.css: This is the CSS file for basic styling.
+css
+Copy code
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+button {
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: #0000ff;
+    margin-left: 10px;
+}
